@@ -1,5 +1,4 @@
 // 用于生成src/index.js文件
-
 var Components = require('../../components.json');
 var fs = require('fs');
 var render = require('json-templater/string');

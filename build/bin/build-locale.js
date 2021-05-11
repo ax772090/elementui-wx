@@ -13,25 +13,25 @@ var fileList = fs.readdirSync(localePath);
  * @param {*} name 文件名
  * @param {*} cb 回调函数
  */
-var transform = function(filename, name, cb) {
+var transform = function (filename, name, cb) {
   require('babel-core').transformFile(resolve(localePath, filename), {
     plugins: [
       'add-module-exports',
-      ['transform-es2015-modules-umd', {loose: true}]
+      ['transform-es2015-modules-umd', { loose: true }]
     ],
     moduleId: name
   }, cb);
 };
 
 fileList
-// 过滤出.js文件
-  .filter(function(file) {
+  // 过滤出.js文件
+  .filter(function (file) {
     return /\.js$/.test(file);
   })
-  .forEach(function(file) {
+  .forEach(function (file) {
     var name = basename(file, '.js');//zh-CN/zh-TW
 
-    transform(file, name, function(err, result) {
+    transform(file, name, function (err, result) {
       if (err) {
         console.error(err);
       } else {

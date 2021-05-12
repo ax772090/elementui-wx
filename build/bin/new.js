@@ -1,5 +1,7 @@
 'use strict';
-// 非常有用的，可以借鉴的，用于生成新的组件，免去一些必要的文件的新建，可以更加专注于新组件的开发
+/** 
+ * 这个很重要，在新增一个新组件时，直接make new table 表格 就会生成和修改相应的13个文件
+*/
 console.log();
 process.on('exit', () => {
   console.log();
@@ -19,6 +21,7 @@ const chineseName = process.argv[3] || componentname;
 const ComponentName = uppercamelcase(componentname);
 const PackagePath = path.resolve(__dirname, '../../packages', componentname);
 const Files = [
+  // 1.新增index.js文件
   {
     filename: 'index.js',
     content: `import ${ComponentName} from './src/main';
@@ -30,6 +33,7 @@ ${ComponentName}.install = function(Vue) {
 
 export default ${ComponentName};`
   },
+  // 2.新增main.vue文件
   {
     filename: 'src/main.vue',
     content: `<template>
@@ -42,48 +46,55 @@ export default {
 };
 </script>`
   },
+  // 3.新增zh-CN.md文件
   {
     filename: path.join('../../examples/docs/zh-CN', `${componentname}.md`),
     content: `## ${ComponentName} ${chineseName}`
   },
+  // 4.新增en-US.md文件
   {
     filename: path.join('../../examples/docs/en-US', `${componentname}.md`),
     content: `## ${ComponentName}`
   },
+  // 5.新增es.md文件
   {
     filename: path.join('../../examples/docs/es', `${componentname}.md`),
     content: `## ${ComponentName}`
   },
+  // 6.新增fr-FR.md文件
   {
     filename: path.join('../../examples/docs/fr-FR', `${componentname}.md`),
     content: `## ${ComponentName}`
   },
+  // 7.新增单元测试文件
   {
     filename: path.join('../../test/unit/specs', `${componentname}.spec.js`),
     content: `import { createTest, destroyVM } from '../util';
-import ${ComponentName} from 'packages/${componentname}';
-
-describe('${ComponentName}', () => {
-  let vm;
-  afterEach(() => {
-    destroyVM(vm);
-  });
-
-  it('create', () => {
-    vm = createTest(${ComponentName}, true);
-    expect(vm.$el).to.exist;
-  });
-});
-`
+    import ${ComponentName} from 'packages/${componentname}';
+    
+    describe('${ComponentName}', () => {
+      let vm;
+      afterEach(() => {
+        destroyVM(vm);
+      });
+      
+      it('create', () => {
+        vm = createTest(${ComponentName}, true);
+        expect(vm.$el).to.exist;
+      });
+    });
+    `
   },
+  // 8.新增.scss文件
   {
     filename: path.join('../../packages/theme-chalk/src', `${componentname}.scss`),
     content: `@import "mixins/mixins";
-@import "common/var";
-
-@include b(${componentname}) {
-}`
+    @import "common/var";
+    
+    @include b(${componentname}) {
+    }`
   },
+  // 9.新增类型声明文件
   {
     filename: path.join('../../types', `${componentname}.d.ts`),
     content: `import { ElementUIComponent } from './component'
@@ -94,7 +105,7 @@ export declare class El${ComponentName} extends ElementUIComponent {
   }
 ];
 
-// 添加到 components.json
+// 10.添加组件到 components.json文件中
 const componentsFile = require('../../components.json');
 if (componentsFile[componentname]) {
   console.error(`${componentname} 已存在.`);
@@ -102,17 +113,17 @@ if (componentsFile[componentname]) {
 }
 componentsFile[componentname] = `./packages/${componentname}/index.js`;
 fileSave(path.join(__dirname, '../../components.json'))
-  .write(JSON.stringify(componentsFile, null, '  '), 'utf8')
-  .end('\n');
+.write(JSON.stringify(componentsFile, null, '  '), 'utf8')
+.end('\n');
 
-// 添加到 index.scss
+// 11.添加到 index.scss
 const sassPath = path.join(__dirname, '../../packages/theme-chalk/src/index.scss');
 const sassImportText = `${fs.readFileSync(sassPath)}@import "./${componentname}.scss";`;
 fileSave(sassPath)
-  .write(sassImportText, 'utf8')
-  .end('\n');
+.write(sassImportText, 'utf8')
+.end('\n');
 
-// 添加到 element-ui.d.ts
+// 12.添加到 element-ui.d.ts
 const elementTsPath = path.join(__dirname, '../../types/element-ui.d.ts');
 
 let elementTsText = `${fs.readFileSync(elementTsPath)}
@@ -134,8 +145,7 @@ Files.forEach(file => {
     .write(file.content, 'utf8')
     .end('\n');
 });
-
-// 添加到 nav.config.json
+// 13.添加到 nav.config.json
 const navConfigFile = require('../../examples/nav.config.json');
 
 Object.keys(navConfigFile).forEach(lang => {

@@ -4,6 +4,9 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 const config = require('./config');
 
+/**
+ * webpack的公共配置
+ */
 module.exports = {
   mode: 'production',
   entry: {

@@ -1,9 +1,16 @@
-// 用于生成src/index.js文件
+// 通过模板生成src/index.js文件
+
 var Components = require('../../components.json');
 var fs = require('fs');
 var render = require('json-templater/string');
+// 用于转驼峰：foo-bar => FooBar
 var uppercamelcase = require('uppercamelcase');
 var path = require('path');
+/**
+ * 可以获取操作系统特定的行末标志
+ *      在 POSIX 上是 \n
+ *      在 Windows 上是 \r\n
+ */
 var endOfLine = require('os').EOL;
 
 var OUTPUT_PATH = path.join(__dirname, '../../src/index.js');
@@ -71,23 +78,25 @@ var installTemplate = [];
 var listTemplate = [];
 
 ComponentNames.forEach(name => {
+  // pagination => Pagination;     menu-item => MenuItem
   var componentName = uppercamelcase(name);
 
+  // includeComponentTemplate:["import Pagination from '../packages/pagination/index.js';",...]
   includeComponentTemplate.push(render(IMPORT_TEMPLATE, {
     name: componentName,
     package: name
   }));
-
+  // 下面这几个组件不放到installTemplate中
+  // installTemplate:[' Pagination',' Dialog',...]
   if (['Loading', 'MessageBox', 'Notification', 'Message', 'InfiniteScroll'].indexOf(componentName) === -1) {
     installTemplate.push(render(INSTALL_COMPONENT_TEMPLATE, {
       name: componentName,
       component: name
     }));
   }
-
+  // 组件名不是Loading的，放到listTemplate里面，作为导出列表
   if (componentName !== 'Loading') listTemplate.push(`  ${componentName}`);
 });
-
 var template = render(MAIN_TEMPLATE, {
   include: includeComponentTemplate.join(endOfLine),
   install: installTemplate.join(',' + endOfLine),

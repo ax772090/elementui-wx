@@ -16,10 +16,11 @@ const path = require('path');
 const fs = require('fs');
 const fileSave = require('file-save');
 const uppercamelcase = require('uppercamelcase');
-const componentname = process.argv[2];
-const chineseName = process.argv[3] || componentname;
-const ComponentName = uppercamelcase(componentname);
+const componentname = process.argv[2];//如：table
+const chineseName = process.argv[3] || componentname;//如：表格
+const ComponentName = uppercamelcase(componentname);// Table
 const PackagePath = path.resolve(__dirname, '../../packages', componentname);
+// 需要新增的File列表
 const Files = [
   // 1.新增index.js文件
   {
@@ -109,10 +110,11 @@ export declare class El${ComponentName} extends ElementUIComponent {
 const componentsFile = require('../../components.json');
 if (componentsFile[componentname]) {
   console.error(`${componentname} 已存在.`);
-  process.exit(1);
+  process.exit(1);//退出
 }
 componentsFile[componentname] = `./packages/${componentname}/index.js`;
 fileSave(path.join(__dirname, '../../components.json'))
+// 这句挺有意思，JSON.stringify的第三个参数：space：指定缩紧用的空白字符
 .write(JSON.stringify(componentsFile, null, '  '), 'utf8')
 .end('\n');
 

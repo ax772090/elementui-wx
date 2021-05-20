@@ -312,16 +312,19 @@
       select() {
         this.getInput().select();
       },
+      // 重新计算文本域的大小
       resizeTextarea() {
         if (this.$isServer) return;
         const { autosize, type } = this;
         if (type !== 'textarea') return;
+        // 默认false
         if (!autosize) {
           this.textareaCalcStyle = {
             minHeight: calcTextareaHeight(this.$refs.textarea).minHeight
           };
           return;
         }
+        // 如果是对象
         const minRows = autosize.minRows;
         const maxRows = autosize.maxRows;
 
@@ -373,6 +376,7 @@
         let elList = [].slice.call(this.$el.querySelectorAll(`.el-input__${place}`) || []);
         if (!elList.length) return;
         let el = null;
+        // 找到当前元素class:el-input__suffix/el-input__prefix
         for (let i = 0; i < elList.length; i++) {
           if (elList[i].parentNode === this.$el) {
             el = elList[i];

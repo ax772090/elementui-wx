@@ -49,7 +49,13 @@ function calculateNodeStyling(targetElement) {
 
   return { contextStyle, paddingSize, borderSize, boxSizing };
 }
-
+/**
+ * 通过新建一个textarea，计算最小高度或者高度,计算完了再删除
+ * @param {*} targetElement 
+ * @param {*} minRows 
+ * @param {*} maxRows 
+ * @returns 
+ */
 export default function calcTextareaHeight(
   targetElement,
   minRows = 1,
@@ -82,13 +88,14 @@ export default function calcTextareaHeight(
   hiddenTextarea.value = '';
   let singleRowHeight = hiddenTextarea.scrollHeight - paddingSize;
 
+  // 默认值是1
   if (minRows !== null) {
     let minHeight = singleRowHeight * minRows;
     if (boxSizing === 'border-box') {
       minHeight = minHeight + paddingSize + borderSize;
     }
     height = Math.max(minHeight, height);
-    result.minHeight = `${ minHeight }px`;
+    result.minHeight = `${minHeight}px`;
   }
   if (maxRows !== null) {
     let maxHeight = singleRowHeight * maxRows;
@@ -97,7 +104,7 @@ export default function calcTextareaHeight(
     }
     height = Math.min(maxHeight, height);
   }
-  result.height = `${ height }px`;
+  result.height = `${height}px`;
   hiddenTextarea.parentNode && hiddenTextarea.parentNode.removeChild(hiddenTextarea);
   hiddenTextarea = null;
   return result;

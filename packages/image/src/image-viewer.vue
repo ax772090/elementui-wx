@@ -1,8 +1,9 @@
 <template>
   <transition name="viewer-fade">
     <div tabindex="-1" ref="el-image-viewer__wrapper" class="el-image-viewer__wrapper" :style="{ 'z-index': viewerZIndex }">
+      <!-- mask掩膜 -->
       <div class="el-image-viewer__mask" @click.self="handleMaskClick"></div>
-      <!-- CLOSE -->
+      <!-- CLOSE 关闭按钮-->
       <span class="el-image-viewer__btn el-image-viewer__close" @click="hide">
         <i class="el-icon-close"></i>
       </span>
@@ -67,6 +68,7 @@ const Mode = {
   }
 };
 
+// 鼠标滚轮事件在不同浏览器中的事件名称不一样
 const mousewheelEventName = isFirefox() ? 'DOMMouseScroll' : 'mousewheel';
 
 export default {
@@ -123,12 +125,15 @@ export default {
     isSingle() {
       return this.urlList.length <= 1;
     },
+    // 第一张
     isFirst() {
       return this.index === 0;
     },
+    // 最后一张
     isLast() {
       return this.index === this.urlList.length - 1;
     },
+    // 当前图片的地址
     currentImg() {
       return this.urlList[this.index];
     },
@@ -171,6 +176,7 @@ export default {
       this.deviceSupportUninstall();
       this.onClose();
     },
+    // 监听'keydown'和鼠标滚轮事件
     deviceSupportInstall() {
       this._keyDownHandler = e => {
         e.stopPropagation();
@@ -202,6 +208,7 @@ export default {
             break;
         }
       };
+      // 鼠标滚轮放大/缩小
       this._mouseWheelHandler = rafThrottle(e => {
         const delta = e.wheelDelta ? e.wheelDelta : -e.detail;
         if (delta > 0) {
@@ -219,6 +226,7 @@ export default {
       on(document, 'keydown', this._keyDownHandler);
       on(document, mousewheelEventName, this._mouseWheelHandler);
     },
+    // 清除事件
     deviceSupportUninstall() {
       off(document, 'keydown', this._keyDownHandler);
       off(document, mousewheelEventName, this._mouseWheelHandler);
@@ -232,9 +240,10 @@ export default {
       this.loading = false;
       e.target.alt = '加载失败';
     },
+    // 鼠标在指定元素上按下左键触发
     handleMouseDown(e) {
       if (this.loading || e.button !== 0) return;
-
+      // 初始值为0，每移动一次，记录当前的值
       const { offsetX, offsetY } = this.transform;
       const startX = e.pageX;
       const startY = e.pageY;
@@ -242,13 +251,15 @@ export default {
         this.transform.offsetX = offsetX + ev.pageX - startX;
         this.transform.offsetY = offsetY + ev.pageY - startY;
       });
+      // 监听鼠标移动，计算图片位置
       on(document, 'mousemove', this._dragHandler);
       on(document, 'mouseup', ev => {
         off(document, 'mousemove', this._dragHandler);
       });
-
+      // 阻止默认行为
       e.preventDefault();
     },
+    // 点击掩膜自身才关闭
     handleMaskClick() {
       if (this.maskClosable) {
         this.hide();
@@ -263,12 +274,13 @@ export default {
         enableTransition: false
       };
     },
+    // 全屏和原始大小切换模式
     toggleMode() {
       if (this.loading) return;
 
-      const modeNames = Object.keys(Mode);
-      const modeValues = Object.values(Mode);
-      const index = modeValues.indexOf(this.mode);
+      const modeNames = Object.keys(Mode);//['CONTAIN','ORIGINAL']
+      const modeValues = Object.values(Mode);//[{icon: "el-icon-full-screen",name: "contain"},{icon: "el-icon-c-scale-to-original"name: "original"}]
+      const index = modeValues.indexOf(this.mode);//0,1
       const nextIndex = (index + 1) % modeNames.length;
       this.mode = Mode[modeNames[nextIndex]];
       this.reset();
@@ -283,6 +295,7 @@ export default {
       const len = this.urlList.length;
       this.index = (this.index + 1) % len;
     },
+    // 按钮点击
     handleActions(action, options = {}) {
       if (this.loading) return;
       const { zoomRate, rotateDeg, enableTransition } = {
@@ -293,17 +306,21 @@ export default {
       };
       const { transform } = this;
       switch (action) {
+        // 缩小，最小缩放到0.2，每次以0.2缩放/放大
         case 'zoomOut':
           if (transform.scale > 0.2) {
             transform.scale = parseFloat((transform.scale - zoomRate).toFixed(3));
           }
           break;
+          // 放大
         case 'zoomIn':
           transform.scale = parseFloat((transform.scale + zoomRate).toFixed(3));
           break;
+          // 顺时针
         case 'clocelise':
           transform.deg += rotateDeg;
           break;
+          // 逆时针
         case 'anticlocelise':
           transform.deg -= rotateDeg;
           break;

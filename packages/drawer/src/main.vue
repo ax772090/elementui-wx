@@ -7,6 +7,7 @@
       class="el-drawer__wrapper"
       tabindex="-1"
       v-show="visible">
+      <!-- 如果不加.self，则点击弹窗也会关闭遮罩 -->
       <div
         class="el-drawer__container"
         :class="visible && 'el-drawer__open'"
@@ -25,9 +26,11 @@
           tabindex="-1"
           >
           <header class="el-drawer__header" id="el-drawer__title" v-if="withHeader">
+            <!-- 标题 -->
             <slot name="title">
               <span role="heading" :title="title">{{ title }}</span>
             </slot>
+            <!-- 关闭按钮 -->
             <button
               :aria-label="`close ${title || 'drawer'}`"
               class="el-drawer__close-btn"
@@ -37,6 +40,7 @@
               <i class="el-dialog__close el-icon el-icon-close"></i>
             </button>
           </header>
+          <!-- body层 -->
           <section class="el-drawer__body" v-if="rendered">
             <slot></slot>
           </section>
@@ -52,6 +56,7 @@ import emitter from 'element-ui/src/mixins/emitter';
 
 export default {
   name: 'ElDrawer',
+  // 通过Popup实现遮罩层
   mixins: [Popup, emitter],
   props: {
     appendToBody: {
@@ -134,6 +139,7 @@ export default {
         if (this.appendToBody) {
           document.body.appendChild(this.$el);
         }
+        // 返回当前在dom结构中处于聚焦状态的element
         this.prevActiveElement = document.activeElement;
       } else {
         if (!this.closed) this.$emit('close');
@@ -156,19 +162,23 @@ export default {
       if (cancel !== false) {
         this.$emit('update:visible', false);
         this.$emit('close');
+        // 控制是否关闭drawer之后将子元素销毁，即body层
         if (this.destroyOnClose === true) {
           this.rendered = false;
         }
         this.closed = true;
       }
     },
+    // 只有点击遮罩层才会触发
     handleWrapperClick() {
       if (this.wrapperClosable) {
         this.closeDrawer();
       }
     },
     closeDrawer() {
+      // 不传时是undefined
       if (typeof this.beforeClose === 'function') {
+        // this.hide =>对应外面传过来的 done()
         this.beforeClose(this.hide);
       } else {
         this.hide();

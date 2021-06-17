@@ -6,6 +6,7 @@
     <slot v-else-if="error" name="error">
       <div class="el-image__error">{{ t('el.image.error') }}</div>
     </slot>
+    <!-- 这里的$attrs主要是给img 的原生属性用的-->
     <img
       v-else
       class="el-image__inner"
@@ -28,6 +29,7 @@
   import { isString, isHtmlElement } from 'element-ui/src/utils/types';
   import throttle from 'throttle-debounce/throttle';
 
+// 是否支持objectFit语法
   const isSupportObjectFit = () => document.documentElement.style.objectFit !== undefined;
 
   const ObjectFit = {
@@ -77,6 +79,7 @@
     },
 
     computed: {
+      // 图片的style属性
       imageStyle() {
         const { fit } = this;
         if (!this.$isServer && fit) {
@@ -89,6 +92,7 @@
       alignCenter() {
         return !this.$isServer && !isSupportObjectFit() && this.fit !== ObjectFit.FILL;
       },
+      // 是否可以预览开启大图
       preview() {
         const { previewSrcList } = this;
         return Array.isArray(previewSrcList) && previewSrcList.length > 0;
@@ -125,6 +129,7 @@
     },
 
     methods: {
+      // 非懒加载加载图片
       loadImage() {
         if (this.$isServer) return;
 
@@ -225,6 +230,7 @@
       },
       clickHandler() {
         // don't show viewer when preview is false
+        // 如果不具备预览功能，那么点击图片不会触发任何
         if (!this.preview) {
           return;
         }

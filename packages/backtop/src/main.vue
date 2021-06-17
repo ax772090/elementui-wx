@@ -60,15 +60,20 @@ export default {
   },
 
   mounted() {
+    // 初始化滚动的对象
     this.init();
+    // 滚动节流处理函数
     this.throttledScrollHandler = throttle(300, this.onScroll);
+    // 监听滚动事件
     this.container.addEventListener('scroll', this.throttledScrollHandler);
   },
 
   methods: {
     init() {
+      // 默认值
       this.container = document;
       this.el = document.documentElement;
+      // 存在target时，以target为准
       if (this.target) {
         this.el = document.querySelector(this.target);
         if (!this.el) {

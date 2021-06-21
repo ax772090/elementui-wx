@@ -472,6 +472,7 @@
       switchLang(targetLang) {
         if (this.lang === targetLang) return;
         localStorage.setItem('ELEMENT_LANGUAGE', targetLang);
+        // 语言变换，对应的路由进行切换
         this.$router.push(this.$route.path.replace(this.lang, targetLang));
       },
 

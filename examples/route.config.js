@@ -1,8 +1,13 @@
 import navConfig from './nav.config';
 import langs from './i18n/route';
 
+/**
+ * 动态生成路由文件
+ */
+
+// require.ensure:可以实现将.vue文件打包成独立的chunk文件，实现生产环境按需加载 https://zhuanlan.zhihu.com/p/82918552
 const LOAD_MAP = {
-  'zh-CN': name => {
+  'zh-CN': name => {//path:component,...
     return r => require.ensure([], () =>
       r(require(`./pages/zh-CN/${name}.vue`)),
     'zh-CN');
@@ -24,6 +29,7 @@ const LOAD_MAP = {
   }
 };
 
+// 加载组件
 const load = function(lang, path) {
   return LOAD_MAP[lang](path);
 };
@@ -61,7 +67,7 @@ const registerRoute = (navConfig) => {
     let navs = navConfig[lang];
     route.push({
       path: `/${ lang }/component`,
-      redirect: `/${ lang }/component/installation`,
+      redirect: `/${ lang }/component/installation`,// 默认跳到安装nav
       component: load(lang, 'component'),
       children: []
     });
@@ -185,5 +191,5 @@ route = route.concat([{
   path: '*',
   redirect: defaultPath
 }]);
-
+console.log('route',route);
 export default route;

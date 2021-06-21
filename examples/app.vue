@@ -1,9 +1,11 @@
 <template>
   <div id="app" :class="{ 'is-component': isComponent }">
+    <!-- 头：全局组件，在entry.js中 -->
     <main-header v-if="lang !== 'play'"></main-header>
     <div class="main-cnt">
       <router-view></router-view>
     </div>
+    <!-- 底 -->
     <main-footer v-if="lang !== 'play' && !isComponent"></main-footer>
   </div>
 </template>

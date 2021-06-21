@@ -1,3 +1,5 @@
+
+// play时的入口
 import Vue from 'vue';
 import Element from 'main/index.js';
 import App from './play/index.vue';

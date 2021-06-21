@@ -1,11 +1,20 @@
+/**
+ * elementui官网的webpack配置
+ */
 const path = require('path');
 const webpack = require('webpack');
+// 抽离css样式的，在生产环境下有用
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// copy用的
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+// 用模板生成html文件
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+// 进度条
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+// 生产时压缩css和assets文件的
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+// 生产时优化js的
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const config = require('./config');
@@ -14,17 +23,17 @@ const isProd = process.env.NODE_ENV === 'production';
 const isPlay = !!process.env.PLAY_ENV;
 
 const webpackConfig = {
-  mode: process.env.NODE_ENV,
-  entry: isProd ? {
+  mode: process.env.NODE_ENV,//'development','production'
+  entry: isProd ? {//入口
     docs: './examples/entry.js'
   } : (isPlay ? './examples/play.js' : './examples/entry.js'),
-  output: {
+  output: {//输出
     path: path.resolve(process.cwd(), './examples/element-ui/'),
     publicPath: process.env.CI_ENV || '',
     filename: '[name].[hash:7].js',
     chunkFilename: isProd ? '[name].[hash:7].js' : '[name].js'
   },
-  resolve: {
+  resolve: {//解析
     extensions: ['.js', '.vue', '.json'],
     alias: config.alias,
     modules: ['node_modules']
@@ -43,12 +52,13 @@ const webpackConfig = {
   },
   module: {
     rules: [
-      {
-        enforce: 'pre',
-        test: /\.(vue|jsx?)$/,
-        exclude: /node_modules/,
-        loader: 'eslint-loader'
-      },
+      // 先关闭掉
+      // {
+      //   enforce: 'pre',
+      //   test: /\.(vue|jsx?)$/,
+      //   exclude: /node_modules/,
+      //   loader: 'eslint-loader'
+      // },
       {
         test: /\.(jsx?|babel|es6)$/,
         include: process.cwd(),
@@ -102,8 +112,8 @@ const webpackConfig = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
-      template: './examples/index.tpl',
-      filename: './index.html',
+      template: './examples/index.tpl',//模版文件
+      filename: './index.html',//打包出来的index.html
       favicon: './examples/favicon.ico'
     }),
     new CopyWebpackPlugin([

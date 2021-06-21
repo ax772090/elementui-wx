@@ -165,6 +165,7 @@
 
 <template>
   <section class="theme-card-item" :class="{'is-hidden': !config || !config.name, 'is-upload': isUpload}">
+    <!-- 上传 -->
     <template v-if="isUpload">
       <div class="upload" @click="uploadClick">
         <div class="upload-action">

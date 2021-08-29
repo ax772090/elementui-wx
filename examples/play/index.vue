@@ -1,34 +1,35 @@
 <template>
   <!--使用draggable组件-->
   <div class="itxst">
-    <div class="col col2" @dragover="dragoverOuter" ref="outerRef">
-      <!-- <draggable
-        v-model="arr1"
-        group="site"
-        animation="300"
-        dragClass="dragClass"
-        ghostClass="ghostClass"
-        chosenClass="chosenClass"
-        @start="onStart"
-        @end="onEnd"
-      >
-        <transition-group> -->
+    <div
+      class="left col2"
+      @dragover="dragoverOuter"
+      @dragleave="dragleaveOuter"
+      ref="outerRef"
+    >
       <div
         class="item"
         v-for="item in arr1"
         :key="item.id"
         @dragenter="dragenterHandle"
         @dragleave="dragleaveHandle"
+        @drop="(ev) => onDrop(ev, item)"
       >
         {{ item.name }}
       </div>
-      <!-- </transition-group>
-      </draggable> -->
+      <div class="drag-tip" v-show="showDragTip">请拖入相关item里面</div>
     </div>
-    <div class="col">
-      <draggable v-model="arr2" animation="100" @start="onStart" @end="onEnd">
-        <transition-group>
-          <div class="item" v-for="item in arr2" :key="item.id">
+    <div class="right">
+      <draggable
+        v-bind="dragProps"
+        v-model="arr2"
+        animation="100"
+        @start="onStart"
+        @end="onEnd"
+      >
+        <!-- :move="handleMove" -->
+        <transition-group class="right-list">
+          <div class="item" v-for="item in arr2" :key="item.id" :id="item.id">
             {{ item.name }}
           </div>
         </transition-group>
@@ -45,62 +46,103 @@ export default {
   },
   data() {
     return {
-      drag: false,
+      currentMoveEleInfo: {}, //当前拖拽元素的本身属性数据
+      showDragTip:false,
       arr1: [
-        { id: 1, name: "www.itxst.com" },
-        { id: 2, name: "www.jd.com" },
-        { id: 3, name: "www.baidu.com" },
-        { id: 4, name: "www.taobao.com" },
+        { id: 5, name: "www.itxst.com" },
+        { id: 6, name: "www.jd.com" },
+        { id: 7, name: "www.baidu.com" },
+        { id: 8, name: "www.taobao.com" },
       ],
       arr2: [
         { id: 1, name: "www.google.com" },
         { id: 2, name: "www.msn.com" },
         { id: 3, name: "www.ebay.com" },
         { id: 4, name: "www.yahoo.com" },
+        { id: 5, name: "www.google.com1" },
+        { id: 6, name: "www.msn.com1" },
+        { id: 7, name: "www.ebay.com1" },
+        { id: 8, name: "www.yahoo.com1" },
       ],
     };
   },
+  computed: {
+    dragProps() {
+      return {
+        // Sortable.js 预设的拖拽的渐进色半透明很难看谁用谁知道
+        forceFallback: false, //true会忽略HTML5的拖拽行为,你要自定义ghostClass chosenClass dragClass样式时，建议forceFallback设置为true
+        animation: 200, //拖动时的动画效果，还是很酷的,数字类型。如设置animation=1000表示1秒过渡动画效果
+        sort: false, //如果设置为false,它所在组无法移动顺序了
+        disabled: false, //是否启用拖拽组件
+        ghostClass: "ghostClass", //拖动元素的占位符类名
+        chosenClass:'chosenClass',
+        dragClass: "dragClass", //拖动元素的样式
+      };
+    },
+  
+  },
+  beforeDestroy() {
+    this.currentMoveEleInfo = {};
+  },
   methods: {
-    onStart() {
-      this.drag = true;
+    onStart(ev) {
+      console.log("start", ev);
+      // 拖拽开始如何拿到当前拖拽的元素的信息
+      this.currentMoveEleInfo = this.arr2.filter(item=>item.id == ev.item.id)[0]
     },
     onEnd(e) {
       console.log("onEnd", e);
-      this.drag = false;
+      this.showDragTip = false
+
+      this.$refs.outerRef.style.background = "";
+      this.currentMoveEleInfo = {}
+    },
+    /**
+     * 1、draggedContext：被拖拽元素的上下文{index,element,futureIndex}
+     * 2、relatedContext：拖入区域的上下文{index,element,list,component}
+     */
+    // 被拖拽元素的信息目前发现只能通过这个move属性才有，其他事件都没有，但是它要在当前组触发移动才能拿到数据，否则拿不到
+    // handleMove({ relatedContext, draggedContext }) {
+    //   // 返回false将取消拖拽操作
+    //   this.currentMoveEleInfo = draggedContext.element;
+    // },
+    dragoverOuter(event) {
+      //   console.log('over-Outer', event);
+      // 阻止默认动作以启用drop
+      event.preventDefault();
+      this.showDragTip = true
+      this.$refs.outerRef.style.background = "#ccc";
+    },
+    dragleaveOuter(e) {
+      console.log("leave-outer", e);
+      e.stopImmediatePropagation();
+      this.showDragTip = false
       this.$refs.outerRef.style.background = "";
     },
-    dragenterOuter(event) {
-      // console.log('outer',event);
-      // event.stopImmediatePropagation()
-      // if(event.target.id === 'outer'){
-      //   event.target.style.background = "#ccc";
-      // }
-    },
-    dragoverOuter(event) {
-      // console.log('over-Outer',event);
-      this.$refs.outerRef.style.background = "#ccc";
-      // if(event.target.id === 'outer'){
-      //   event.target.style.background = "#ccc";
-      // }
-    },
-    dragleaveOuter(event) {
-      console.log("leave-Outer", event);
-      // if(event.target.id === 'outer'){
-      //   event.target.style.background = "";
-      // }
-      this.$refs.outerRef.style.background = "#ccc";
-    },
+    /* 在目标中拖拽，放置目标元素时触发事件 */
     dragenterHandle(event) {
       console.log("enter-inner", event);
-      // event.preventDefault();
-      event.stopImmediatePropagation();
-      if (event.target.className === "item") {
+      if (event.target.className == "item") {
         event.target.style.border = "1px solid red";
       }
     },
     dragleaveHandle(event) {
       console.log("leave-inner", event);
-      // 当可拖动的元素进入可放置的目标时高亮目标节点
+      event.stopImmediatePropagation();
+      // 当拖动元素离开可放置目标节点，重置其背景
+      if (event.target.className == "item") {
+        event.target.style.border = "";
+      }
+    },
+    // 只有拖拽到目标区域才会触发这个drop
+    onDrop(event, item) {
+      console.log("drop", item);
+      console.log("当前拖拽数据", this.currentMoveEleInfo);
+      console.log("目标数据", item);
+      // 这里可以发送请求传数据给后端
+      setTimeout(() => {
+        this.$message.success("拖拽成功");
+      }, 1000);
       if (event.target.className == "item") {
         event.target.style.border = "";
       }
@@ -109,12 +151,9 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.outer-bg {
-  background: #ccc;
-}
 /*定义要拖拽元素的样式*/
 .ghostClass {
-  background-color: rgb(210, 210, 216) !important;
+  background-color: blue !important;
 }
 
 .chosenClass {
@@ -123,31 +162,52 @@ export default {
 }
 
 .dragClass {
-  background-color: blueviolet !important;
+  border: 1px solid #1062cc !important;
+  background: #1062cc !important;
   opacity: 1 !important;
   box-shadow: none !important;
   outline: none !important;
   background-image: none !important;
 }
-
+.col2 {
+  height: 800px;
+}
 .itxst {
   margin: 10px;
+  display: flex;
+  & .left {
+    width: 400px;
+    flex: 0 0 auto;
+    border: solid 1px #eee;
+    border-radius: 5px;
+    padding: 5px;
+    position: relative;
+    .item {
+      text-align: center;
+    }
+    .drag-tip{
+      position: absolute;
+      bottom: 0;
+      text-align: center;
+      width: 100%;
+    }
+  }
+  & .right {
+    width: 100%;
+    padding:10px 0px;
+    & .right-list {
+      display: block;
+      .item {
+        display: inline-block;
+        width: 300px;//calc(25% - 20px);// 这里-20是因为每个item有个margin-left和margin-right各为10px,用这种方式全屏的时候样式会有问题
+        height: 50px;
+        box-sizing: border-box;
+      }
+    }
+  }
 }
-
 .title {
   padding: 6px 12px;
-}
-
-.col {
-  width: 40%;
-  flex: 1;
-  padding: 10px;
-  border: solid 1px #eee;
-  border-radius: 5px;
-  float: left;
-  &.col2 {
-    height: 800px;
-  }
 }
 
 .col + .col {
@@ -155,7 +215,8 @@ export default {
 }
 .item {
   padding: 6px 12px;
-  margin: 0px 10px 0px 10px;
+  margin: 10px;
+  margin-top: 0;
   border: solid 1px #eee;
   background-color: #f1f1f1;
 }
@@ -163,10 +224,5 @@ export default {
 .item:hover {
   background-color: #fdfdfd;
   cursor: move;
-}
-
-.item + .item {
-  border-top: none;
-  margin-top: 6px;
 }
 </style>

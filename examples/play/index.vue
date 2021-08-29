@@ -47,12 +47,13 @@ export default {
   data() {
     return {
       currentMoveEleInfo: {}, //当前拖拽元素的本身属性数据
-      showDragTip:false,
+      showDragTip: false,
+      enterInter: false,
       arr1: [
-        { id: 5, name: "www.itxst.com" },
-        { id: 6, name: "www.jd.com" },
-        { id: 7, name: "www.baidu.com" },
-        { id: 8, name: "www.taobao.com" },
+        { id: 9, name: "www.itxst.com" },
+        { id: 10, name: "www.jd.com" },
+        { id: 11, name: "www.baidu.com" },
+        { id: 12, name: "www.taobao.com" },
       ],
       arr2: [
         { id: 1, name: "www.google.com" },
@@ -75,11 +76,10 @@ export default {
         sort: false, //如果设置为false,它所在组无法移动顺序了
         disabled: false, //是否启用拖拽组件
         ghostClass: "ghostClass", //拖动元素的占位符类名
-        chosenClass:'chosenClass',
+        chosenClass: "chosenClass",
         dragClass: "dragClass", //拖动元素的样式
       };
     },
-  
   },
   beforeDestroy() {
     this.currentMoveEleInfo = {};
@@ -88,14 +88,14 @@ export default {
     onStart(ev) {
       console.log("start", ev);
       // 拖拽开始如何拿到当前拖拽的元素的信息
-      this.currentMoveEleInfo = this.arr2.filter(item=>item.id == ev.item.id)[0]
+      this.currentMoveEleInfo = this.arr2.filter(
+        (item) => item.id == ev.item.id
+      )[0];
     },
     onEnd(e) {
       console.log("onEnd", e);
-      this.showDragTip = false
-
+      this.showDragTip = false;
       this.$refs.outerRef.style.background = "";
-      this.currentMoveEleInfo = {}
     },
     /**
      * 1、draggedContext：被拖拽元素的上下文{index,element,futureIndex}
@@ -110,20 +110,25 @@ export default {
       //   console.log('over-Outer', event);
       // 阻止默认动作以启用drop
       event.preventDefault();
-      this.showDragTip = true
+      this.showDragTip = true;
       this.$refs.outerRef.style.background = "#ccc";
     },
     dragleaveOuter(e) {
       console.log("leave-outer", e);
       e.stopImmediatePropagation();
-      this.showDragTip = false
-      this.$refs.outerRef.style.background = "";
+      if (!this.enterInter) {
+        this.showDragTip = false;
+        this.$refs.outerRef.style.background = "";
+      }
     },
     /* 在目标中拖拽，放置目标元素时触发事件 */
     dragenterHandle(event) {
       console.log("enter-inner", event);
+      this.enterInter = true;
+      event.stopPropagation();
       if (event.target.className == "item") {
         event.target.style.border = "1px solid red";
+        event.target.style.background = "#1062cc";
       }
     },
     dragleaveHandle(event) {
@@ -132,6 +137,7 @@ export default {
       // 当拖动元素离开可放置目标节点，重置其背景
       if (event.target.className == "item") {
         event.target.style.border = "";
+        event.target.style.background = "";
       }
     },
     // 只有拖拽到目标区域才会触发这个drop
@@ -142,9 +148,12 @@ export default {
       // 这里可以发送请求传数据给后端
       setTimeout(() => {
         this.$message.success("拖拽成功");
+        this.arr2 = this.arr2.filter((item) => item.id != this.currentMoveEleInfo.id);
+        this.currentMoveEleInfo = {}
       }, 1000);
       if (event.target.className == "item") {
         event.target.style.border = "";
+        event.target.style.background = "";
       }
     },
   },
@@ -185,7 +194,7 @@ export default {
     .item {
       text-align: center;
     }
-    .drag-tip{
+    .drag-tip {
       position: absolute;
       bottom: 0;
       text-align: center;
@@ -194,12 +203,12 @@ export default {
   }
   & .right {
     width: 100%;
-    padding:10px 0px;
+    padding: 10px 0px;
     & .right-list {
       display: block;
       .item {
         display: inline-block;
-        width: 300px;//calc(25% - 20px);// 这里-20是因为每个item有个margin-left和margin-right各为10px,用这种方式全屏的时候样式会有问题
+        width: 300px; //calc(25% - 20px);// 这里-20是因为每个item有个margin-left和margin-right各为10px,用这种方式全屏的时候样式会有问题
         height: 50px;
         box-sizing: border-box;
       }

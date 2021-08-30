@@ -8,14 +8,17 @@
       ref="outerRef"
     >
       <div
+        ref="itemRef"
         class="item"
-        v-for="item in arr1"
+        v-for="(item, index) in arr1"
         :key="item.id"
-        @dragenter="dragenterHandle"
-        @dragleave="dragleaveHandle"
+        @dragenter="(ev) => dragenterHandle(ev, index)"
+        @dragleave="(ev) => dragleaveHandle(ev, index)"
         @drop="(ev) => onDrop(ev, item)"
       >
-        {{ item.name }}
+        <div class="item-name">
+          {{ item.name }}
+        </div>
       </div>
       <div class="drag-tip" v-show="showDragTip">请拖入相关item里面</div>
     </div>
@@ -70,6 +73,7 @@ export default {
   computed: {
     dragProps() {
       return {
+        lasterner: null,
         // Sortable.js 预设的拖拽的渐进色半透明很难看谁用谁知道
         forceFallback: false, //true会忽略HTML5的拖拽行为,你要自定义ghostClass chosenClass dragClass样式时，建议forceFallback设置为true
         animation: 200, //拖动时的动画效果，还是很酷的,数字类型。如设置animation=1000表示1秒过渡动画效果
@@ -122,23 +126,31 @@ export default {
       }
     },
     /* 在目标中拖拽，放置目标元素时触发事件 */
-    dragenterHandle(event) {
+    dragenterHandle(event, index) {
       console.log("enter-inner", event);
       this.enterInter = true;
       event.stopPropagation();
-      if (event.target.className == "item") {
-        event.target.style.border = "1px solid red";
-        event.target.style.background = "#1062cc";
-      }
+      this.lasterner = event.target;
+      this.$refs.itemRef[index].classList.add("enter-item");
+      // if (event.target.className == "item") {
+      //   event.target.style.border = "1px solid red";
+      //   event.target.style.background = "#1062cc";
+      // }
     },
-    dragleaveHandle(event) {
+    dragoverHandle(ev) {
+      console.log("over-inner");
+    },
+    dragleaveHandle(event, index) {
       console.log("leave-inner", event);
       event.stopImmediatePropagation();
-      // 当拖动元素离开可放置目标节点，重置其背景
-      if (event.target.className == "item") {
-        event.target.style.border = "";
-        event.target.style.background = "";
+      if (this.lasterner === event.target) {
+        this.$refs.itemRef[index].classList.remove("enter-item");
       }
+      // 当拖动元素离开可放置目标节点，重置其背景
+      // if (event.target.className == "item") {
+      //   event.target.style.border = "";
+      //   event.target.style.background = "";
+      // }
     },
     // 只有拖拽到目标区域才会触发这个drop
     onDrop(event, item) {
@@ -148,8 +160,10 @@ export default {
       // 这里可以发送请求传数据给后端
       setTimeout(() => {
         this.$message.success("拖拽成功");
-        this.arr2 = this.arr2.filter((item) => item.id != this.currentMoveEleInfo.id);
-        this.currentMoveEleInfo = {}
+        this.arr2 = this.arr2.filter(
+          (item) => item.id != this.currentMoveEleInfo.id
+        );
+        this.currentMoveEleInfo = {};
       }, 1000);
       if (event.target.className == "item") {
         event.target.style.border = "";
@@ -181,6 +195,9 @@ export default {
 .col2 {
   height: 800px;
 }
+.enter-item {
+  background: #1062cc !important;
+}
 .itxst {
   margin: 10px;
   display: flex;
@@ -193,6 +210,10 @@ export default {
     position: relative;
     .item {
       text-align: center;
+      padding: 10px;
+      .item-name {
+        height: 30px;
+      }
     }
     .drag-tip {
       position: absolute;

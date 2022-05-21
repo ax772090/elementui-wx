@@ -1,109 +1,109 @@
 <script>
-import UploadList from './upload-list';
-import Upload from './upload';
-import ElProgress from 'element-ui/packages/progress';
-import Migrating from 'element-ui/src/mixins/migrating';
+import UploadList from "./upload-list";
+import Upload from "./upload";
+import ElProgress from "element-ui/packages/progress";
+import Migrating from "element-ui/src/mixins/migrating";
 
 function noop() {}
 
 export default {
-  name: 'ElUpload',
+  name: "ElUpload",
 
   mixins: [Migrating],
 
   components: {
     ElProgress,
     UploadList,
-    Upload
+    Upload,
   },
 
   provide() {
     return {
-      uploader: this
+      uploader: this,
     };
   },
 
   inject: {
     elForm: {
-      default: ''
-    }
+      default: "",
+    },
   },
 
   props: {
     action: {
       type: String,
-      required: true
+      required: true,
     },
     headers: {
       type: Object,
       default() {
         return {};
-      }
+      },
     },
     data: Object,
     multiple: Boolean,
     name: {
       type: String,
-      default: 'file'
+      default: "file",
     },
     drag: Boolean,
     dragger: Boolean,
     withCredentials: Boolean,
     showFileList: {
       type: Boolean,
-      default: true
+      default: true,
     },
     accept: String,
     type: {
       type: String,
-      default: 'select'
+      default: "select",
     },
     beforeUpload: Function,
     beforeRemove: Function,
     onRemove: {
       type: Function,
-      default: noop
+      default: noop,
     },
     onChange: {
       type: Function,
-      default: noop
+      default: noop,
     },
     onPreview: {
-      type: Function
+      type: Function,
     },
     onSuccess: {
       type: Function,
-      default: noop
+      default: noop,
     },
     onProgress: {
       type: Function,
-      default: noop
+      default: noop,
     },
     onError: {
       type: Function,
-      default: noop
+      default: noop,
     },
     fileList: {
       type: Array,
       default() {
         return [];
-      }
+      },
     },
     autoUpload: {
       type: Boolean,
-      default: true
+      default: true,
     },
     listType: {
       type: String,
-      default: 'text' // text,picture,picture-card
+      default: "text", // text,picture,picture-card
     },
     httpRequest: Function,
     disabled: Boolean,
     limit: Number,
     onExceed: {
       type: Function,
-      default: noop
-    }
+      default: noop,
+    },
   },
 
   data() {
@@ -111,25 +111,25 @@ export default {
       uploadFiles: [],
       dragOver: false,
       draging: false,
-      tempIndex: 1
+      tempIndex: 1,
     };
   },
 
   computed: {
     uploadDisabled() {
       return this.disabled || (this.elForm || {}).disabled;
-    }
+    },
   },
 
   watch: {
     listType(type) {
-      if (type === 'picture-card' || type === 'picture') {
-        this.uploadFiles = this.uploadFiles.map(file => {
+      if (type === "picture-card" || type === "picture") {
+        this.uploadFiles = this.uploadFiles.map((file) => {
           if (!file.url && file.raw) {
             try {
               file.url = URL.createObjectURL(file.raw);
             } catch (err) {
-              console.error('[Element Error][Upload]', err);
+              console.error("[Element Error][Upload]", err);
             }
           }
           return file;
@@ -139,32 +139,32 @@ export default {
     fileList: {
       immediate: true,
       handler(fileList) {
-        this.uploadFiles = fileList.map(item => {
-          item.uid = item.uid || (Date.now() + this.tempIndex++);
-          item.status = item.status || 'success';
+        this.uploadFiles = fileList.map((item) => {
+          item.uid = item.uid || Date.now() + this.tempIndex++;
+          item.status = item.status || "success";
           return item;
         });
-      }
-    }
+      },
+    },
   },
 
   methods: {
     handleStart(rawFile) {
       rawFile.uid = Date.now() + this.tempIndex++;
       let file = {
-        status: 'ready',
+        status: "ready",
         name: rawFile.name,
         size: rawFile.size,
         percentage: 0,
         uid: rawFile.uid,
-        raw: rawFile
+        raw: rawFile,
       };
 
-      if (this.listType === 'picture-card' || this.listType === 'picture') {
+      if (this.listType === "picture-card" || this.listType === "picture") {
         try {
           file.url = URL.createObjectURL(rawFile);
         } catch (err) {
-          console.error('[Element Error][Upload]', err);
+          console.error("[Element Error][Upload]", err);
           return;
         }
       }
@@ -175,14 +175,14 @@ export default {
     handleProgress(ev, rawFile) {
       const file = this.getFile(rawFile);
       this.onProgress(ev, file, this.uploadFiles);
-      file.status = 'uploading';
+      file.status = "uploading";
       file.percentage = ev.percent || 0;
     },
     handleSuccess(res, rawFile) {
       const file = this.getFile(rawFile);
 
       if (file) {
-        file.status = 'success';
+        file.status = "success";
         file.response = res;
 
         this.onSuccess(res, file, this.uploadFiles);
@@ -193,7 +193,7 @@ export default {
       const file = this.getFile(rawFile);
       const fileList = this.uploadFiles;
 
-      file.status = 'fail';
+      file.status = "fail";
 
       fileList.splice(fileList.indexOf(file), 1);
 
@@ -213,7 +213,7 @@ export default {
 
       if (!this.beforeRemove) {
         doRemove();
-      } else if (typeof this.beforeRemove === 'function') {
+      } else if (typeof this.beforeRemove === "function") {
         const before = this.beforeRemove(file, this.uploadFiles);
         if (before && before.then) {
           before.then(() => {
@@ -227,47 +227,49 @@ export default {
     getFile(rawFile) {
       let fileList = this.uploadFiles;
       let target;
-      fileList.every(item => {
+      fileList.every((item) => {
         target = rawFile.uid === item.uid ? item : null;
         return !target;
       });
       return target;
     },
     abort(file) {
-      this.$refs['upload-inner'].abort(file);
+      this.$refs["upload-inner"].abort(file);
     },
     clearFiles() {
       this.uploadFiles = [];
     },
     submit() {
       this.uploadFiles
-        .filter(file => file.status === 'ready')
-        .forEach(file => {
-          this.$refs['upload-inner'].upload(file.raw);
+        .filter((file) => file.status === "ready")
+        .forEach((file) => {
+          this.$refs["upload-inner"].upload(file.raw);
         });
     },
     getMigratingConfig() {
       return {
         props: {
-          'default-file-list': 'default-file-list is renamed to file-list.',
-          'show-upload-list': 'show-upload-list is renamed to show-file-list.',
-          'thumbnail-mode': 'thumbnail-mode has been deprecated, you can implement the same effect according to this case: http://element.eleme.io/#/zh-CN/component/upload#yong-hu-tou-xiang-shang-chuan'
-        }
+          "default-file-list": "default-file-list is renamed to file-list.",
+          "show-upload-list": "show-upload-list is renamed to show-file-list.",
+          "thumbnail-mode":
+            "thumbnail-mode has been deprecated, you can implement the same effect according to this case: http://element.eleme.io/#/zh-CN/component/upload#yong-hu-tou-xiang-shang-chuan",
+        },
       };
-    }
+    },
   },
 
   beforeDestroy() {
-    this.uploadFiles.forEach(file => {
-      if (file.url && file.url.indexOf('blob:') === 0) {
+    this.uploadFiles.forEach((file) => {
+      if (file.url && file.url.indexOf("blob:") === 0) {
         URL.revokeObjectURL(file.url);
       }
     });
   },
-
+  // 代码使用render 函数进行渲染，使用jsx的写法
+  // vue中jsx的用法：https://github.com/vuejs/jsx#installation
   render(h) {
     let uploadList;
-
+    // 默认显示上传文件列表
     if (this.showFileList) {
       uploadList = (
         <UploadList
@@ -275,16 +277,15 @@ export default {
           listType={this.listType}
           files={this.uploadFiles}
           on-remove={this.handleRemove}
-          handlePreview={this.onPreview}>
-          {
-            (props) => {
-              if (this.$scopedSlots.file) {
-                return this.$scopedSlots.file({
-                  file: props.file
-                });
-              }
+          handlePreview={this.onPreview}
+        >
+          {(props) => {
+            if (this.$scopedSlots.file) {
+              return this.$scopedSlots.file({
+                file: props.file,
+              });
             }
-          }
+          }}
         </UploadList>
       );
     }
@@ -295,8 +296,8 @@ export default {
         drag: this.drag,
         action: this.action,
         multiple: this.multiple,
-        'before-upload': this.beforeUpload,
-        'with-credentials': this.withCredentials,
+        "before-upload": this.beforeUpload,
+        "with-credentials": this.withCredentials,
         headers: this.headers,
         name: this.name,
         data: this.data,
@@ -306,16 +307,16 @@ export default {
         listType: this.listType,
         disabled: this.uploadDisabled,
         limit: this.limit,
-        'on-exceed': this.onExceed,
-        'on-start': this.handleStart,
-        'on-progress': this.handleProgress,
-        'on-success': this.handleSuccess,
-        'on-error': this.handleError,
-        'on-preview': this.onPreview,
-        'on-remove': this.handleRemove,
-        'http-request': this.httpRequest
+        "on-exceed": this.onExceed,
+        "on-start": this.handleStart,
+        "on-progress": this.handleProgress,
+        "on-success": this.handleSuccess,
+        "on-error": this.handleError,
+        "on-preview": this.onPreview,
+        "on-remove": this.handleRemove,
+        "http-request": this.httpRequest,
       },
-      ref: 'upload-inner'
+      ref: "upload-inner",
     };
 
     const trigger = this.$slots.trigger || this.$slots.default;
@@ -323,16 +324,14 @@ export default {
 
     return (
       <div>
-        { this.listType === 'picture-card' ? uploadList : ''}
-        {
-          this.$slots.trigger
-            ? [uploadComponent, this.$slots.default]
-            : uploadComponent
-        }
+        {this.listType === "picture-card" ? uploadList : ""}
+        {this.$slots.trigger
+          ? [uploadComponent, this.$slots.default]
+          : uploadComponent}
         {this.$slots.tip}
-        { this.listType !== 'picture-card' ? uploadList : ''}
+        {this.listType !== "picture-card" ? uploadList : ""}
       </div>
     );
-  }
+  },
 };
 </script>

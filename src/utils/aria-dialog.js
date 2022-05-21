@@ -41,14 +41,15 @@ aria.Dialog = function(dialog, focusAfterClosed, focusFirst) {
   } else {
     this.focusFirst = null;
   }
-
+// 它的作用是什么？没看到效果,我的理解是给取消按钮聚焦的，但是
   if (this.focusFirst) {
     this.focusFirst.focus();
   } else {
     Utils.focusFirstDescendant(this.dialogNode);
   }
-
+// lastFocus: 最新聚焦的元素
   this.lastFocus = document.activeElement;
+  // 监听focus事件
   tabEvent = (e) => {
     this.trapFocus(e);
   };

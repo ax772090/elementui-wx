@@ -7,7 +7,7 @@
       class="el-drawer__wrapper"
       tabindex="-1"
       v-show="visible">
-      <!-- 如果不加.self，则点击弹窗也会关闭遮罩 -->
+      <!-- 加.self，是为了只在点击el-drawer__container这层时触发函数 -->
       <div
         class="el-drawer__container"
         :class="visible && 'el-drawer__open'"
@@ -74,6 +74,8 @@ export default {
       type: Boolean,
       default: true
     },
+    // Drawer 提供一个 destroyOnClose API, 用来在关闭 Drawer 时销毁子组件内容, 
+    // 例如清理表单内的状态, 在必要时可以将该属性设置为 true 用来保证初始状态的一致性
     destroyOnClose: {
       type: Boolean,
       default: false
@@ -85,7 +87,7 @@ export default {
     direction: {
       type: String,
       default: 'rtl',
-      validator(val) {
+      validator(val) { // 这种方式值得学习
         return ['ltr', 'rtl', 'ttb', 'btt'].indexOf(val) !== -1;
       }
     },
@@ -108,11 +110,12 @@ export default {
     visible: {
       type: Boolean
     },
-    wrapperClosable: {
+    wrapperClosable: {//默认点击遮罩层可以关闭弹窗
       type: Boolean,
       default: true
     },
-    withHeader: {
+    // 是否显示header栏
+    withHeader: { 
       type: Boolean,
       default: true
     }
@@ -139,11 +142,12 @@ export default {
         if (this.appendToBody) {
           document.body.appendChild(this.$el);
         }
-        // 返回当前在dom结构中处于聚焦状态的element
+        // 返回当前在dom结构中处于聚焦状态的element,比如你是通过点击按钮触发弹窗的显示，则当前activeElement就是按钮
         this.prevActiveElement = document.activeElement;
       } else {
         if (!this.closed) this.$emit('close');
         this.$nextTick(() => {
+          // 关闭的时候就需要为该元素设置焦点
           if (this.prevActiveElement) {
             this.prevActiveElement.focus();
           }

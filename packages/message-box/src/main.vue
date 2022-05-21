@@ -85,6 +85,7 @@
   import ElButton from 'element-ui/packages/button';
   import { addClass, removeClass } from 'element-ui/src/utils/dom';
   import { t } from 'element-ui/src/locale';
+  // 此dialog是一个构造函数，提供了弹窗focus的管理工作
   import Dialog from 'element-ui/src/utils/aria-dialog';
 
   let messageBox;
@@ -168,6 +169,7 @@
         }
         this.opened = false;
         this.doAfterClose();
+        // 这个setTimeout会先执行，默认值为0
         setTimeout(() => {
           if (this.action) this.callback(this.action, this);
         });
@@ -201,11 +203,14 @@
       validate() {
         if (this.$type === 'prompt') {
           const inputPattern = this.inputPattern;
+          // 校验没通过
           if (inputPattern && !inputPattern.test(this.inputValue || '')) {
             this.editorErrorMessage = this.inputErrorMessage || t('el.messagebox.error');
+            // 给input添加类
             addClass(this.getInputElement(), 'invalid');
             return false;
           }
+          // 可以规定校验函数，返回boolean或者string
           const inputValidator = this.inputValidator;
           if (typeof inputValidator === 'function') {
             const validateResult = inputValidator(this.inputValue);
@@ -221,6 +226,7 @@
             }
           }
         }
+        // 校验通过了
         this.editorErrorMessage = '';
         removeClass(this.getInputElement(), 'invalid');
         return true;
@@ -230,6 +236,7 @@
         const title = this.$el.querySelector('.el-message-box__btns .el-message-box__title');
         return btn || title;
       },
+      // 获取input或者textarea元素
       getInputElement() {
         const inputRefs = this.$refs.input.$refs;
         return inputRefs.input || inputRefs.textarea;
@@ -253,16 +260,25 @@
 
       visible(val) {
         if (val) {
-          this.uid++;
+          this.uid++;// 每次打开递增
+          // 如果打开的是alert或者confirm，则弹窗的确定按钮聚焦
           if (this.$type === 'alert' || this.$type === 'confirm') {
+            // 这个nextTick的作用就很大了，在执行完下面的代码时会立马执行，触发confirm按钮的focus
+            // 如果你不加，那么confirm按钮就不会有这个效果，相当于是产生一个时间差
             this.$nextTick(() => {
+              // 不太懂为什么要聚焦
               this.$refs.confirm.$el.focus();
             });
           }
+          // document.activeElement:点击谁打开的这个弹窗，它就是谁
           this.focusAfterClosed = document.activeElement;
+          // 这个dialog的主要作用？
+          // 答：提供了弹窗focus的管理功能
+          // focusAfterClosed：当dialog关闭的时候，那个之前被点击的元素要恢复到原来的聚焦状态
+          // getFirstFocus(): 设置第一个聚焦的元素
           messageBox = new Dialog(this.$el, this.focusAfterClosed, this.getFirstFocus());
         }
-
+        // $type只有三个值：'alert','confirm','prompt'
         // prompt
         if (this.$type !== 'prompt') return;
         if (val) {
@@ -280,6 +296,7 @@
 
     mounted() {
       this.$nextTick(() => {
+        // closeOnHashChange：是否在 hashchange 时关闭 MessageBox
         if (this.closeOnHashChange) {
           window.addEventListener('hashchange', this.close);
         }

@@ -30,7 +30,7 @@ if (typeof /./ !== 'function' && typeof Int8Array !== 'object' && (Vue.prototype
 export {
   isFunction
 };
-
+// void 0 值得学习
 export const isUndefined = (val)=> {
   return val === void 0;
 };

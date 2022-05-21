@@ -136,6 +136,7 @@ export default class Node {
   }
 
   setData(data) {
+    debugger
     if (!Array.isArray(data)) {
       markNodeData(this, data);
     }
@@ -233,6 +234,7 @@ export default class Node {
         parent: this,
         store: this.store
       });
+      // 这里新建的子节点实例
       child = new Node(child);
     }
 

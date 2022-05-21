@@ -3,7 +3,7 @@ import Vue from 'vue';
 let scrollBarWidth;
 
 /**
- * 如何测量当前浏览器的滚动条的宽度(有意思)
+ * 如何测量当前浏览器竖向滚动条的宽度(有意思)
  * 答：通过给外层div设置scroll，然后内部添加一个元素，从而得到差值
  */
 export default function() {

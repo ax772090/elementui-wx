@@ -3,7 +3,7 @@ import ajax from './ajax';
 import UploadDragger from './upload-dragger.vue';
 
 export default {
-  inject: ['uploader'],
+  inject: ['uploader'],//  这个组件没有用到，它的自组件UploadDragger里面用到了，所以传下去了
   components: {
     UploadDragger
   },
@@ -159,9 +159,11 @@ export default {
         req.then(options.onSuccess, options.onError);
       }
     },
+    // 选择文件时点击按钮
     handleClick() {
+      console.log('a',this.$refs.input.value);
       if (!this.disabled) {
-        this.$refs.input.value = null;
+        this.$refs.input.value = null;//value：表示已选择文件的路径。如果用户选择了多个文件，则 value 表示他们选择的文件列表中的第一个文件
         this.$refs.input.click();
       }
     },
@@ -196,6 +198,7 @@ export default {
       }
     };
     data.class[`el-upload--${listType}`] = true;
+    // el-upload__input会隐藏默认的file的样式，通过触发'el-upload'的click，从而触发type="file"的click
     return (
       <div {...data} tabindex="0" >
         {

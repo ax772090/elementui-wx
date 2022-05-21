@@ -27,7 +27,7 @@ export default {
   name: 'ElBacktop',
 
   props: {
-    visibilityHeight: {
+    visibilityHeight: {// 滚动的高度大于等于它时才出现
       type: Number,
       default: 200
     },
@@ -64,16 +64,19 @@ export default {
     this.init();
     // 滚动节流处理函数
     this.throttledScrollHandler = throttle(300, this.onScroll);
+    console.log(this.container);
     // 监听滚动事件
-    this.container.addEventListener('scroll', this.throttledScrollHandler);
+    this.container.addEventListener('scroll', ()=>{
+      console.log('ccc');
+    });
   },
 
   methods: {
     init() {
-      // 默认值
+      // 默认值,不写target时，以document作为它的滚动容器
       this.container = document;
       this.el = document.documentElement;
-      // 存在target时，以target为准
+
       if (this.target) {
         this.el = document.querySelector(this.target);
         if (!this.el) {

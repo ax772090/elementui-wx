@@ -182,7 +182,6 @@ export const isScroll = (el, vertical) => {
       ? getStyle(el, 'overflow-y')
       : getStyle(el, 'overflow-x')
     : getStyle(el, 'overflow');
-
   return overflow.match(/(scroll|auto)/);
 };
 
